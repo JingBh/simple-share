@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.11",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vueuse/core": "^10.11.0",
+    "@vueuse/integrations": "^10.11.0",
+    "autoprefixer": "^10.4.19",
+    "axios": "^1.7.2",
+    "bootstrap-icons": "^1.11.3",
+    "filesize": "^10.1.4",
+    "pinia": "^2.1.7",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
+    "vite-svg-loader": "^5.1.0",
+    "vue": "^3.4.33",
+    "vue-router": "^4.4.0",
+    "vue-tsc": "^2.0.26"
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+}
