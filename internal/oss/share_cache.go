@@ -23,7 +23,7 @@ func GetShareCached(ctx context.Context, name string) (*models.Share, error) {
 	}
 
 	res, err := GetShare(ctx, name)
-	if err != nil {
+	if res == nil {
 		return nil, err
 	}
 	shareCache.Store(name, &shareCacheRecord{

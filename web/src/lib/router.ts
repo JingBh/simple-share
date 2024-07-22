@@ -6,6 +6,8 @@ import PageCreate from '../pages/PageCreate.vue'
 import PageHome from '../pages/PageHome.vue'
 import PageList from '../pages/PageList.vue'
 import PageLogin from '../pages/PageLogin.vue'
+import PageNotFound from '../pages/PageNotFound.vue'
+import PageShare from '../pages/PageShare.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -26,16 +28,24 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/list',
+    path: '/login',
+    component: PageLogin
+  },
+  {
+    path: '/shares',
     component: PageList,
     meta: {
       auth: true
     }
   },
   {
-    path: '/login',
-    component: PageLogin
-  }
+    path: '/shares/:name',
+    component: PageShare
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: PageNotFound
+  },
 ]
 
 const router = createRouter({

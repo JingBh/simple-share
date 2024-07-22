@@ -10,7 +10,7 @@ const store = useStore()
 
 <template>
   <div class="w-full min-h-screen flex flex-col justify-center items-center gap-16 md:gap-24 p-8">
-    <h1 class="font-bold text-4xl md:text-5xl text-center">
+    <h1 class="font-title font-semibold text-4xl sm:text-5xl text-center">
       Simple Share
     </h1>
     <div
@@ -30,7 +30,7 @@ const store = useStore()
       <router-link
         v-if="store.loggedIn"
         class="inline-flex items-center gap-4 text-gray-200 bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 font-medium rounded-lg px-5 py-3 dark:text-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200"
-        to="/list"
+        to="/shares"
       >
         <bi-share class="w-4 h-4" />
         <span class="inline-block flex-1 text-center">

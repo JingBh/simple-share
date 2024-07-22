@@ -9,8 +9,8 @@ import FileUpload from '../components/FileUpload.vue'
 import FlowbiteSpinner from '../components/FlowbiteSpinner.vue'
 import type { GenerateShareSettings, ShareFileUpload } from '../types/share.ts'
 
-import BiFileEarmarkText from 'bootstrap-icons/icons/file-earmark-text.svg?component'
 import BiFolder2 from 'bootstrap-icons/icons/folder2.svg?component'
+import BiFonts from 'bootstrap-icons/icons/fonts.svg?component'
 import BiLink45deg from 'bootstrap-icons/icons/link-45deg.svg?component'
 
 const router = useRouter()
@@ -82,7 +82,7 @@ const submit = () => {
             :class="{ 'text-blue-700 dark:text-blue-500': settings.type === 'text', 'text-neutral-900 dark:text-neutral-100 hover:text-blue-700 dark:hover:text-blue-500': settings.type !== 'text' }"
             @click="settings.type = 'text'"
           >
-            <bi-file-earmark-text class="w-4 h-4" />
+            <bi-fonts class="w-4 h-4" />
             <span>Text</span>
           </button>
           <button

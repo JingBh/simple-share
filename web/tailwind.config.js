@@ -10,6 +10,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Noto Sans SC', ...defaultTheme.fontFamily.sans],
+        name: ['Montserrat', 'Noto Sans SC', ...defaultTheme.fontFamily.sans],
+        title: ['Kanit', 'Noto Sans SC', ...defaultTheme.fontFamily.sans],
       }
     },
   },

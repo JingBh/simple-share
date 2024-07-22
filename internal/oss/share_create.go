@@ -34,6 +34,7 @@ func CreateShare(ctx context.Context, options CreateShareOptions) error {
 		oss.Meta("Share-Expiry", strconv.Itoa(options.Expiry)),
 	}
 	if options.Name != "" {
+		ossOptions = append(ossOptions, oss.Meta("Share-Filename", options.Name))
 		nameEncoded := url.PathEscape(options.Name)
 		ossOptions = append(ossOptions, oss.ContentDisposition("attachment; filename=\""+nameEncoded+"\"; filename*=UTF-8''"+nameEncoded))
 	}
@@ -52,7 +53,6 @@ func CreateShare(ctx context.Context, options CreateShareOptions) error {
 		ossOptions = append(ossOptions, oss.Meta("Share-Password", passwordHashed))
 	}
 	if options.Expiry > 0 {
-		ossOptions = append(ossOptions, oss.Meta("Share-Expiry", strconv.Itoa(options.Expiry)))
 		ossOptions = append(ossOptions, oss.SetTagging(oss.Tagging{Tags: []oss.Tag{
 			{Key: "period", Value: strconv.Itoa(options.Expiry)},
 		}}))
@@ -61,6 +61,7 @@ func CreateShare(ctx context.Context, options CreateShareOptions) error {
 	// no need to add retry here, as the source file is not deleted,
 	// the client can actively retry
 	if options.Source != "" {
+		ossOptions = append(ossOptions, oss.MetadataDirective(oss.MetaReplace))
 		ossOptions = append(ossOptions, oss.TaggingDirective(oss.TaggingReplace))
 		_, err := client.CopyObject(
 			"uploads/"+options.Source,

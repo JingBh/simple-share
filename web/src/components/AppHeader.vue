@@ -15,7 +15,7 @@ const username = computed<string | null>(() => {
 <template>
   <header class="fixed top-0 left-0 w-full h-16 px-4 sm:px-8 flex items-center justify-between gap-4 bg-white dark:bg-neutral-800">
     <router-link
-      class="font-bold text-2xl"
+      class="font-title font-medium text-2xl"
       to="/"
     >
       Simple Share
