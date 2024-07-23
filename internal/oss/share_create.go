@@ -14,14 +14,15 @@ import (
 // CreateShareOptions Request to create a single shared file in the OSS store.
 // If `Source` is provided, the file is already uploaded to `uploads/` and should be moved to the destination.
 type CreateShareOptions struct {
-	Type     string // `file`, `directory`, `text`, `url`
-	Text     string
-	Source   string
-	Name     string // name of the file
-	Path     string // path to save the file, after `shares/`
-	Password string
-	Expiry   int
-	Creator  *models.ShareCreator
+	Type        string // `file`, `directory`, `text`, `url`
+	Text        string
+	Source      string
+	Name        string // name of the file
+	DisplayName string
+	Path        string // path to save the file, after `shares/`
+	Password    string
+	Expiry      int
+	Creator     *models.ShareCreator
 }
 
 func CreateShare(ctx context.Context, options CreateShareOptions) error {
@@ -37,6 +38,9 @@ func CreateShare(ctx context.Context, options CreateShareOptions) error {
 		ossOptions = append(ossOptions, oss.Meta("Share-Filename", options.Name))
 		nameEncoded := url.PathEscape(options.Name)
 		ossOptions = append(ossOptions, oss.ContentDisposition("attachment; filename=\""+nameEncoded+"\"; filename*=UTF-8''"+nameEncoded))
+	}
+	if options.DisplayName != "" {
+		ossOptions = append(ossOptions, oss.Meta("Share-Display-Name", options.DisplayName))
 	}
 	if options.Creator != nil {
 		creatorJsonBytes, err := json.Marshal(options.Creator)

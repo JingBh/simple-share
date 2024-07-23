@@ -20,6 +20,7 @@ const contents = ref('')
 const settings = ref<GenerateShareSettings>({
   type: 'file',
   name: '',
+  displayName: '',
   nameRandom: true,
   nameRandomLength: 6,
   password: '',
@@ -114,13 +115,13 @@ const submit = () => {
           v-else-if="settings.type === 'url'"
           class="flex flex-col gap-2"
         >
-        <textarea
-          v-model="contents"
-          class="block p-2.5 w-full resize-none text-sm font-mono text-neutral-900 bg-neutral-50 rounded-lg border border-neutral-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Input here the URL you want to share"
-          rows="4"
-          autocomplete="off"
-        />
+          <textarea
+            v-model="contents"
+            class="block p-2.5 w-full resize-none text-sm font-mono text-neutral-900 bg-neutral-50 rounded-lg border border-neutral-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Input here the URL you want to share"
+            rows="4"
+            autocomplete="off"
+          />
           <p class="text-xs text-neutral-500 dark:text-neutral-400">
             URL shares works like an URL shortener, will immediately redirect when accessed.
           </p>
@@ -136,7 +137,7 @@ const submit = () => {
         />
         <span class="relative w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-neutral-600 peer-checked:bg-blue-600" />
         <span class="ms-3 font-medium text-neutral-700 dark:text-neutral-300">
-          Random share name
+          Random link
         </span>
       </label>
       <label
@@ -144,7 +145,7 @@ const submit = () => {
         class="flex items-center gap-2"
       >
         <span class="font-medium text-neutral-700 dark:text-neutral-300">
-          Share name length
+          Link length
         </span>
         <input
           v-model="settings.nameRandomLength"
@@ -161,13 +162,25 @@ const submit = () => {
         class="flex flex-col sm:flex-row sm:items-center gap-2"
       >
         <span class="font-medium text-neutral-700 dark:text-neutral-300">
-          Name
+          Link
         </span>
         <input
           v-model="settings.name"
           type="text"
           class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 py-1.5 px-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Custom share name"
+          placeholder="Custom link name"
+          autocomplete="off"
+        />
+      </label>
+      <label class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span class="font-medium text-neutral-700 dark:text-neutral-300">
+          Title
+        </span>
+        <input
+          v-model="settings.displayName"
+          type="text"
+          class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 py-1.5 px-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Display name"
           autocomplete="off"
         />
       </label>

@@ -94,8 +94,8 @@ const loadContent = (file?: string) => {
 
 const displayName = computed(() => {
   if (share.value) {
-    if (share.value.files?.length === 1) {
-      return share.value.files[0].path
+    if (share.value.displayName) {
+      return share.value.displayName
     }
     return share.value.name
   }
@@ -173,6 +173,21 @@ watch(name, () => {
           <span>{{ share.expiry }} days</span>
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
+        <template v-if="isOwner">
+          <a
+            href="#"
+            class="inline-flex items-center gap-1 hover:text-red-500 hover:underline underline-offset-2"
+            @click.prevent="onDelete"
+          >
+            <bi-trash3 class="w-3 h-3" />
+            <span>Delete</span>
+          </a>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-else-if="share?.creator?.username">
+          <span>By <strong>{{ share.creator.username }}</strong></span>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
         <template v-if="textContent">
           <a
             href="#"
@@ -194,17 +209,6 @@ watch(name, () => {
             </a>
             <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
           </template>
-        </template>
-        <template v-if="isOwner">
-          <a
-            href="#"
-            class="inline-flex items-center gap-1 hover:text-red-500 hover:underline underline-offset-2"
-            @click.prevent="onDelete"
-          >
-            <bi-trash3 class="w-3 h-3" />
-            <span>Delete</span>
-          </a>
-          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
       </p>
     </div>
@@ -243,12 +247,12 @@ watch(name, () => {
       </div>
     </div>
     <div
-      v-else-if="!share || ((share.type === 'text' || share.type === 'url') && !textContent)"
+      v-else-if="!share || (share.type === 'text' && !textContent)"
       class="py-4 sm:py-32 flex items-center justify-center gap-2"
     >
       <flowbite-spinner class="w-6 h-6" />
       <p class="text-lg text-gray-500 dark:text-neutral-400">
-        {{ share?.type === 'url' ? 'Redirecting...' : 'Loading content...' }}
+        Loading content...
       </p>
     </div>
     <div
@@ -256,5 +260,14 @@ watch(name, () => {
       class="w-full py-4 text-gray-600 dark:text-neutral-300 text-xs font-mono whitespace-pre-wrap overflow-x-auto"
       v-text="textContent"
     />
+    <div
+      v-else-if="share.type === 'url'"
+      class="py-4 sm:py-32 flex items-center justify-center gap-2"
+    >
+      <flowbite-spinner class="w-6 h-6" />
+      <p class="text-lg text-gray-500 dark:text-neutral-400">
+        Redirecting...
+      </p>
+    </div>
   </layout-dashboard>
 </template>

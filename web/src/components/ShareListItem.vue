@@ -37,7 +37,7 @@ const onShow = () => {
       :class="isOwner ? '' : 'text-gray-500 dark:text-gray-400'"
     >
       <share-icon :share-type="share.type" class="w-5 h-5" />
-      <span v-text="share.name" />
+      <span v-text="share.displayName ?? share.name" />
     </h5>
     <p class="flex items-center flex-wrap text-xs text-gray-500 dark:text-neutral-400">
       <template v-if="share.files && share.files.length">

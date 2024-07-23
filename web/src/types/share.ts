@@ -3,6 +3,7 @@ export type ShareType = 'file' | 'directory' | 'text' | 'url'
 export interface Share {
   type: ShareType
   name: string
+  displayName?: string
   password?: string
   expiry?: number
   size: number
@@ -14,6 +15,7 @@ export interface Share {
 export interface ShareSettings {
   type: ShareType
   name: string
+  displayName?: string
   password: string
   expiry: number // in days, 0 means never
 }

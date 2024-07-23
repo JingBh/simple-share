@@ -17,6 +17,7 @@ type shareCreateRequest struct {
 	Name             string `json:"name" validate:"required_if:nameRandom,false|nameValid" message:"required_if:please choose a name for your share|nameValid:invalid share name"`
 	NameRandom       bool   `json:"nameRandom"`
 	NameRandomLength int    `json:"nameRandomLength" validate:"required_if:nameRandom,true|range:4,32"`
+	DisplayName      string `json:"displayName"`
 	Password         string `json:"password" validate:"max_len:72"`
 	Expiry           int    `json:"expiry" validate:"in:0,1,3,7"`
 	Text             string `json:"text" validate:"required_unless:type,file|textIsUrl" message:"textIsUrl:invalid URL"`
@@ -73,12 +74,13 @@ func ShareCreate(c echo.Context) error {
 
 	if req.Type == "text" || req.Type == "url" {
 		err = oss.CreateShare(cc.Request().Context(), oss.CreateShareOptions{
-			Type:     req.Type,
-			Text:     req.Text,
-			Path:     req.Name,
-			Password: req.Password,
-			Expiry:   req.Expiry,
-			Creator:  creator,
+			Type:        req.Type,
+			Text:        req.Text,
+			DisplayName: req.DisplayName,
+			Path:        req.Name,
+			Password:    req.Password,
+			Expiry:      req.Expiry,
+			Creator:     creator,
 		})
 	} else if len(req.Files) > 1 {
 		// directory
@@ -107,23 +109,25 @@ func ShareCreate(c echo.Context) error {
 			return err
 		}
 		err = oss.CreateShare(cc.Request().Context(), oss.CreateShareOptions{
-			Type:     "directory",
-			Text:     treeJson,
-			Path:     req.Name,
-			Password: req.Password,
-			Expiry:   req.Expiry,
-			Creator:  creator,
+			Type:        "directory",
+			Text:        treeJson,
+			DisplayName: req.DisplayName,
+			Path:        req.Name,
+			Password:    req.Password,
+			Expiry:      req.Expiry,
+			Creator:     creator,
 		})
 	} else {
 		// single file, copy that file to destination
 		err = oss.CreateShare(cc.Request().Context(), oss.CreateShareOptions{
-			Type:     "file",
-			Source:   req.Files[0].Id + ".bin",
-			Name:     utils.ExtractFilename(req.Files[0].Path),
-			Path:     req.Name,
-			Password: req.Password,
-			Expiry:   req.Expiry,
-			Creator:  creator,
+			Type:        "file",
+			Source:      req.Files[0].Id + ".bin",
+			Name:        utils.ExtractFilename(req.Files[0].Path),
+			DisplayName: req.DisplayName,
+			Path:        req.Name,
+			Password:    req.Password,
+			Expiry:      req.Expiry,
+			Creator:     creator,
 		})
 	}
 	if err != nil {

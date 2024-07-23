@@ -99,14 +99,15 @@ func GetShare(ctx context.Context, name string) (*models.Share, error) {
 	}
 
 	return &models.Share{
-		Type:      shareType,
-		Name:      name,
-		Password:  res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Password"),
-		Expiry:    expiry,
-		Size:      size,
-		CreatedAt: createdAt,
-		Files:     files,
-		Creator:   creator,
+		Type:        shareType,
+		Name:        name,
+		DisplayName: res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Display-Name"),
+		Password:    res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Password"),
+		Expiry:      expiry,
+		Size:        size,
+		CreatedAt:   createdAt,
+		Files:       files,
+		Creator:     creator,
 	}, nil
 }
 
