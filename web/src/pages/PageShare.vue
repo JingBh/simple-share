@@ -7,6 +7,7 @@ import type { AxiosError } from 'axios'
 
 import { useAxiosInstance } from '../lib/axios.ts'
 import { useStore } from '../lib/store.ts'
+import { isoToRelative } from '../utils/datetime.ts'
 import { formatSize } from '../utils/filesize.ts'
 import FlowbiteSpinner from '../components/FlowbiteSpinner.vue'
 import ShareIcon from '../components/ShareIcon.vue'
@@ -161,19 +162,7 @@ watch(name, () => {
         />
         <span v-text="displayName" />
       </h5>
-      <p class="flex items-center flex-wrap mt-2 text-xs sm:text-sm text-gray-500 dark:text-neutral-400">
-        <template v-if="share?.files && share.files.length > 1">
-          <span>{{ share.files.length }} files</span>
-          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
-        </template>
-        <template v-if="share?.size">
-          <span v-text="formatSize(share.size)" />
-          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
-        </template>
-        <template v-if="share?.expiry">
-          <span>{{ share.expiry }} days</span>
-          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
-        </template>
+      <p class="flex items-center flex-wrap gap-y-1 mt-2 text-xs sm:text-sm text-gray-500 dark:text-neutral-400">
         <template v-if="isOwner">
           <button
             class="inline-flex items-center gap-1 hover:text-red-500 hover:underline underline-offset-2"
@@ -186,6 +175,26 @@ watch(name, () => {
         </template>
         <template v-else-if="share?.creator?.username">
           <span>By <strong>{{ share.creator.username }}</strong></span>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-if="share?.files && share.files.length > 1">
+          <span>{{ share.files.length }} files</span>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-if="share?.files && share?.size">
+          <span v-text="formatSize(share.size)" />
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-if="share?.createdAt">
+          <span>created {{ isoToRelative(share.createdAt) }}</span>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-if="share?.expiresAt">
+          <span>expires {{ isoToRelative(share.expiresAt) }}</span>
+          <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+        <template v-else-if="share?.expiry">
+          <span>{{ share.expiry }} days remaining</span>
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
         <template v-if="textContent">

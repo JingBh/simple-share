@@ -8,14 +8,22 @@ import (
 	"github.com/jingbh/simple-share/internal/models"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type GetShareContentOptions struct {
 	Name    string
 	FileId  string
 	Headers http.Header
+}
+
+type GetShareContentLinkOptions struct {
+	Name        string
+	FileId      string
+	ContentType string
 }
 
 type GetShareContentResult struct {
@@ -39,13 +47,39 @@ func GetShare(ctx context.Context, name string) (*models.Share, error) {
 	shareType := res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Type")
 	expiry, _ := strconv.Atoi(res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Expiry"))
 	size, _ := strconv.ParseInt(res.Get(oss.HTTPHeaderContentLength), 10, 64)
-	creatorJson := res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Creator")
+
 	var creator *models.ShareCreator = nil
-	if creatorJson != "" {
-		creator = new(models.ShareCreator)
-		_ = json.Unmarshal([]byte(creatorJson), creator)
+	{
+		creatorJson := res.Get(oss.HTTPHeaderOssMetaPrefix + "Share-Creator")
+		if creatorJson != "" {
+			creator = new(models.ShareCreator)
+			_ = json.Unmarshal([]byte(creatorJson), creator)
+		}
 	}
-	createdAt, _ := http.ParseTime(res.Get(oss.HTTPHeaderLastModified))
+
+	var createdAt *time.Time = nil
+	{
+		createdAtTime, err := http.ParseTime(res.Get(oss.HTTPHeaderLastModified))
+		if err == nil {
+			createdAt = &createdAtTime
+		}
+	}
+
+	var expiresAt *time.Time = nil
+	{
+		expirationHeader := res.Get("X-OSS-Expiration")
+		expiryPattern := `expiry-date=\"(.+?)\"`
+		expiryRegex, err := regexp.Compile(expiryPattern)
+		if err == nil {
+			match := expiryRegex.FindStringSubmatch(expirationHeader)
+			if len(match) > 1 {
+				expiresAtTime, err := http.ParseTime(match[1])
+				if err == nil {
+					expiresAt = &expiresAtTime
+				}
+			}
+		}
+	}
 
 	var files models.ShareFiles = nil
 	if shareType == "directory" {
@@ -106,6 +140,7 @@ func GetShare(ctx context.Context, name string) (*models.Share, error) {
 		Expiry:      expiry,
 		Size:        size,
 		CreatedAt:   createdAt,
+		ExpiresAt:   expiresAt,
 		Files:       files,
 		Creator:     creator,
 	}, nil
@@ -178,4 +213,22 @@ func GetShareContent(ctx context.Context, options GetShareContentOptions) (*GetS
 		Reader:  resp.Body,
 		Headers: resp.Headers,
 	}, nil
+}
+
+func GetShareContentLink(ctx context.Context, options GetShareContentLinkOptions) (string, error) {
+	client := PublicClient()
+
+	key := "shares/" + options.Name
+	if options.FileId != "" {
+		key += ".d/" + options.FileId + ".bin"
+	}
+
+	ossOptions := []oss.Option{
+		oss.WithContext(ctx),
+	}
+	if options.ContentType != "" {
+		ossOptions = append(ossOptions, oss.ResponseContentType(options.ContentType))
+	}
+
+	return client.SignURL(key, oss.HTTPGet, 3600, ossOptions...)
 }

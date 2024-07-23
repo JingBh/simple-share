@@ -10,7 +10,7 @@ import (
 const charset = "abcdefghijkmnpqrstuvwxyz23456789"
 
 // allowed name pattern
-const validPattern = "^[a-zA-Z0-9]{2,64}$"
+const validPattern = `^[a-zA-Z0-9]{2,64}$`
 
 func generateShareName(length int) string {
 	b := make([]byte, length)

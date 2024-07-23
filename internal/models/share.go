@@ -9,7 +9,8 @@ type Share struct {
 	Password    string        `json:"password,omitempty"` // hashed password
 	Expiry      int           `json:"expiry,omitempty"`
 	Size        int64         `json:"size"`
-	CreatedAt   time.Time     `json:"createdAt,omitempty"`
+	CreatedAt   *time.Time    `json:"createdAt,omitempty"`
+	ExpiresAt   *time.Time    `json:"expiresAt,omitempty"`
 	Files       ShareFiles    `json:"files,omitempty"`
 	Creator     *ShareCreator `json:"creator,omitempty"`
 }
@@ -17,7 +18,7 @@ type Share struct {
 type ShareFiles []struct {
 	Id   string `json:"id"`
 	Path string `json:"path"`
-	Size int64  `json:"size,omitempty"`
+	Size int64  `json:"size"`
 }
 
 type ShareCreator struct {

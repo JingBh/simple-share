@@ -8,6 +8,7 @@ export interface Share {
   expiry?: number
   size: number
   createdAt?: string
+  expiresAt?: string
   files?: ShareFile[]
   creator?: ShareCreator
 }

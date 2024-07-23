@@ -19,6 +19,7 @@ func InitConfig() {
 	viper.SetDefault("debug", false)
 	viper.SetDefault("serve.port", 8080)
 	viper.SetDefault("oidc.name_claim", "username")
+	viper.SetDefault("oss.download_direct", false)
 
 	if viper.GetBool("debug") {
 		viper.SetDefault("serve.host", "localhost")

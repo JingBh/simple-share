@@ -6,6 +6,7 @@ import (
 	"github.com/jingbh/simple-share/internal/oss"
 	"github.com/jingbh/simple-share/internal/utils"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 	"io"
 	"net/http"
 )
@@ -42,7 +43,6 @@ func ShareGetFile(c echo.Context) error {
 	cc := c.(context.CustomContext)
 	fileId := cc.Param("file")
 
-	c.Response().Header().Add("Accept-Ranges", "bytes")
 	contentType := "application/octet-stream"
 	if cc.Share.Type == "directory" && fileId == "" {
 		contentType = "application/json"
@@ -50,6 +50,19 @@ func ShareGetFile(c echo.Context) error {
 		contentType = "text/plain"
 	}
 
+	if viper.GetBool("oss.download_direct") {
+		url, err := oss.GetShareContentLink(c.Request().Context(), oss.GetShareContentLinkOptions{
+			Name:        cc.Share.Name,
+			FileId:      fileId,
+			ContentType: contentType,
+		})
+		if err != nil {
+			return err
+		}
+		return c.Redirect(http.StatusFound, url)
+	}
+
+	c.Response().Header().Add("Accept-Ranges", "bytes")
 	requestHeaders := make(http.Header)
 	requestHeaders.Add("Range", c.Request().Header.Get("Range"))
 	res, err := oss.GetShareContent(c.Request().Context(), oss.GetShareContentOptions{
