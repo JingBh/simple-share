@@ -33,7 +33,7 @@ const { isLoading } = useInfiniteScroll(document.body, async () => {
 
 <template>
   <layout-dashboard>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-8">
       <share-list-item
         v-for="share of data"
         :key="share.name"

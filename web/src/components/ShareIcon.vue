@@ -3,9 +3,10 @@ import BiFileEarmarkText from 'bootstrap-icons/icons/file-earmark-text.svg?compo
 import BiFolder2 from 'bootstrap-icons/icons/folder2.svg?component'
 import BiFonts from 'bootstrap-icons/icons/fonts.svg?component'
 import BiLink45deg from 'bootstrap-icons/icons/link-45deg.svg?component'
+import BiShare from 'bootstrap-icons/icons/share.svg?component'
 
 defineProps<{
-  shareType: string
+  shareType?: string
 }>()
 </script>
 
@@ -14,4 +15,5 @@ defineProps<{
   <bi-file-earmark-text v-else-if="shareType === 'file'" />
   <bi-fonts v-else-if="shareType === 'text'" />
   <bi-link45deg v-else-if="shareType === 'url'" />
+  <bi-share v-else />
 </template>

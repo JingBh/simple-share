@@ -30,7 +30,10 @@ const onShow = () => {
 <template>
   <div
     class="flex flex-col items-stretch gap-2 bg-white dark:bg-neutral-800 p-4 rounded-lg shadow select-none cursor-pointer hover:shadow-md"
+    tabindex="0"
     @click="onShow"
+    @keydown.enter="onShow"
+    @keydown.space="onShow"
   >
     <h5
       class="inline-flex items-center gap-2 text-base font-name font-medium"

@@ -17,6 +17,7 @@ import BiBoxArrowInUpRight from 'bootstrap-icons/icons/box-arrow-in-up-right.svg
 import BiCopy from 'bootstrap-icons/icons/copy.svg?component'
 import BiDot from 'bootstrap-icons/icons/dot.svg?component'
 import BiTrash3 from 'bootstrap-icons/icons/trash3.svg?component'
+import ShareFileTree from '../components/ShareFileTree.vue'
 
 const store = useStore()
 
@@ -151,16 +152,16 @@ watch(name, () => {
       >
         <flowbite-spinner
           v-if="isLoading"
-          class="w-6 h-6"
+          class="flex-shrink-0 w-6 h-6"
         />
         <share-icon
           v-else
-          :share-type="share?.type ?? 'url'"
-          class="w-6 h-6"
+          :share-type="share?.type"
+          class="flex-shrink-0 w-6 h-6"
         />
         <span v-text="displayName" />
       </h5>
-      <p class="flex items-center flex-wrap mt-2 text-sm text-gray-500 dark:text-neutral-400">
+      <p class="flex items-center flex-wrap mt-2 text-xs sm:text-sm text-gray-500 dark:text-neutral-400">
         <template v-if="share?.files && share.files.length > 1">
           <span>{{ share.files.length }} files</span>
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
@@ -174,14 +175,13 @@ watch(name, () => {
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
         <template v-if="isOwner">
-          <a
-            href="#"
+          <button
             class="inline-flex items-center gap-1 hover:text-red-500 hover:underline underline-offset-2"
-            @click.prevent="onDelete"
+            @click="onDelete"
           >
             <bi-trash3 class="w-3 h-3" />
             <span>Delete</span>
-          </a>
+          </button>
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
         <template v-else-if="share?.creator?.username">
@@ -189,14 +189,13 @@ watch(name, () => {
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
         </template>
         <template v-if="textContent">
-          <a
-            href="#"
+          <button
             class="inline-flex items-center gap-1 hover:text-gray-600 dark:hover:text-neutral-300 hover:underline underline-offset-2"
-            @click.prevent="onCopyContent"
+            @click="onCopyContent"
           >
             <bi-copy class="w-3 h-3" />
             <span>Copy</span>
-          </a>
+          </button>
           <bi-dot class="w-3 h-3 mx-1 text-gray-400 dark:text-neutral-500 last:hidden" />
           <template v-if="share?.type === 'url'">
             <a
@@ -269,5 +268,9 @@ watch(name, () => {
         Redirecting...
       </p>
     </div>
+    <share-file-tree
+      v-else-if="share.files"
+      :files="share.files"
+    />
   </layout-dashboard>
 </template>

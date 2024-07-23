@@ -57,6 +57,15 @@ const allPaths = computed(() => {
   return paths
 })
 
+const filterFilename = (filename: string): boolean => {
+  return [
+    '.DS_Store',
+    '.localized',
+    'desktop.ini',
+    'Thumbs.db',
+  ].indexOf(filename) === -1
+}
+
 const checkLimit = (files: any[]): boolean => {
   if (props.modelValue.length + queue.value.length + files.length >= 100) {
     alert('Currently, we only support uploading up to 100 files at a time.')
@@ -66,7 +75,7 @@ const checkLimit = (files: any[]): boolean => {
 }
 
 const scanEntry = async (entry: FileSystemEntry, basePath: string): Promise<QueuedFile[]> => {
-  if (!entry.name) {
+  if (!entry.name || !filterFilename(entry.name)) {
     return []
   }
 
@@ -117,7 +126,7 @@ const select = () => {
       }
     } else {
       for (const file of input.files ?? []) {
-        if (file.name) {
+        if (file.name && filterFilename(file.name)) {
           const path = file.webkitRelativePath || file.name
           if (!allPaths.value.has(path)) {
             files.push({ file, path })
@@ -147,7 +156,7 @@ const { isOverDropZone } = useDropZone(document.body, {
     for (const item of items) {
       if (!item.webkitGetAsEntry) {
         const file = item.getAsFile()
-        if (file && file.name) {
+        if (file && file.name && filterFilename(file.name)) {
           const path = file.webkitRelativePath || file.name
           if (!allPaths.value.has(path)) {
             files.push({ file, path })
