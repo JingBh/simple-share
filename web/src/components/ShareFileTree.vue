@@ -185,23 +185,23 @@ watch(breadcrumbs, () => {
         class="w-full flex items-center gap-3 p-2 sm:px-4 hover:bg-gray-300 dark:hover:bg-neutral-700 select-none cursor-pointer"
         @click="onBreadcrumbNavigate(breadcrumbs.length - 2)"
       >
-        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium break-all">
+        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium overflow-x-hidden whitespace-nowrap">
           <bi-folder2 class="flex-shrink-0 w-4 h-4" />
           <span>..</span>
         </span>
       </button>
       <button
-        v-for="(directory, i) in entries.directories"
-        :key="'directory-' + i"
+        v-for="directory of entries.directories"
+        :key="'directory-' + currentPath + directory.name"
         class="w-full flex items-center gap-3 p-2 sm:px-4 hover:bg-gray-300 dark:hover:bg-neutral-700 select-none cursor-pointer"
         @click="currentPath += directory.name + '/'"
       >
-        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium break-all">
+        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium overflow-x-hidden whitespace-nowrap">
           <bi-folder2 class="flex-shrink-0 w-4 h-4" />
           <span v-text="directory.name" />
         </span>
         <span
-          class="flex-shrink-0 text-sm text-gray-500 dark:text-neutral-400"
+          class="flex-shrink-0 text-xs sm:text-sm text-gray-500 dark:text-neutral-400"
           v-text="formatSize(directory.size)"
         />
       </button>
