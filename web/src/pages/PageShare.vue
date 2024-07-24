@@ -12,7 +12,7 @@ import { formatSize } from '../utils/filesize.ts'
 import FlowbiteSpinner from '../components/FlowbiteSpinner.vue'
 import ShareIcon from '../components/ShareIcon.vue'
 import LayoutDashboard from '../layouts/LayoutDashboard.vue'
-import type { Share } from '../types/share.ts'
+import type { Share, ShareFile } from '../types/share.ts'
 
 import BiBoxArrowInUpRight from 'bootstrap-icons/icons/box-arrow-in-up-right.svg?component'
 import BiCopy from 'bootstrap-icons/icons/copy.svg?component'
@@ -122,6 +122,28 @@ const onCopyContent = () => {
 
 const onRedirect = () => {
   location.href = textContent.value
+}
+
+const onDownloadFile = (file: ShareFile) => {
+  if (!share.value) {
+    return
+  }
+
+  let url = share.value.type === 'directory'
+    ? `/api/shares/${share.value.name}/files/${file.id}`
+    : `/api/shares/${share.value.name}/content`
+
+  const a = document.createElement('a')
+  a.href = url
+  a.target = '_blank'
+  {
+    const parts = file.path.split('.')
+    const filename = parts[parts.length - 1]
+    if (filename) {
+      a.download = filename
+    }
+  }
+  a.click()
 }
 
 const onDelete = () => {
@@ -280,6 +302,7 @@ watch(name, () => {
     <share-file-tree
       v-else-if="share.files"
       :files="share.files"
+      @download="onDownloadFile"
     />
   </layout-dashboard>
 </template>

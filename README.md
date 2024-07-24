@@ -43,7 +43,8 @@ The application uses Alibaba Cloud OSS service for storage.
 
 - `ALIBABA_CLOUD_ACCESS_KEY_ID`: Alibaba Cloud AccessKey ID
 - `ALIBABA_CLOUD_ACCESS_KEY_SECRET`: Alibaba Cloud AccessKey Secret
-- `OSS_ENDPOINT`: OSS datacenter endpoint to use (example: `region-internal.aliyuncs.com`)
+- `OSS_REGION`: Alibaba Cloud region, must set or signing will fail
+- `OSS_ENDPOINT`: OSS datacenter endpoint to use (example: `https://region-internal.aliyuncs.com`)
 - `OSS_ENDPOINT_PUBLIC`: OSS public bucket endpoint to use (for custom domain; defaults to `OSS_ENDPOINT` if not set)
 - `OSS_BUCKET`: bucket name
 - `OSS_DOWNLOAD_DIRECT`: provide direct OSS download link instead of proxying (default: `false`)

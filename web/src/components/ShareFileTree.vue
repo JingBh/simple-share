@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import { formatSize } from '../utils/filesize.ts'
+import ShareFilePreview from './ShareFilePreview.vue'
 import type { ShareFile } from '../types/share.ts'
 
 import BiCaretRightFill from 'bootstrap-icons/icons/caret-right-fill.svg?component'
+import BiCloudDownload from 'bootstrap-icons/icons/cloud-download.svg?component'
 import BiFileEarmarkText from 'bootstrap-icons/icons/file-earmark-text.svg?component'
 import BiFolder2 from 'bootstrap-icons/icons/folder2.svg?component'
 import BiFolder2Open from 'bootstrap-icons/icons/folder2-open.svg?component'
@@ -28,6 +30,13 @@ const props = defineProps<{
   files: ShareFile[]
 }>()
 
+const emit = defineEmits<{
+  download: [value: ShareFile]
+}>()
+
+// Note: There are two similar values to distinguish:
+// - `isSingleFile`: Whether the share has only one file
+// - `entries.isFile`: Whether the current path is a file
 const isSingleFile = computed(() => {
   return props.files.length === 1
 })
@@ -75,6 +84,8 @@ const entries = computed<Entries>(() => {
   }
 })
 
+const breadcrumbsContainer = ref<HTMLDivElement | null>(null)
+
 const breadcrumbs = computed<string[]>(() => {
   const parts = currentPath.value.split('/').filter(Boolean)
   parts.unshift('Root')
@@ -93,7 +104,7 @@ const onBreadcrumbNavigate = (i: number) => {
   }
 }
 
-watch(props.files, () => {
+watch(() => props.files, () => {
   if (isSingleFile.value) {
     currentPath.value += props.files[0].path
   } else if (entries.value.directories.length === 1 && entries.value.files.length === 0) {
@@ -102,42 +113,68 @@ watch(props.files, () => {
 }, {
   immediate: true
 })
+
+watch(breadcrumbs, () => {
+  nextTick(() => {
+    if (breadcrumbsContainer.value) {
+      breadcrumbsContainer.value.scrollTo({
+        left: breadcrumbsContainer.value.scrollWidth,
+        behavior: 'smooth'
+      })
+    }
+  })
+}, {
+  immediate: true
+})
 </script>
 
 <template>
   <div>
-    <div
-      v-if="!isSingleFile"
-      class="flex items-center flex-wrap bg-gray-200 dark:bg-neutral-800 font-name text-xs sm:text-sm"
-    >
-      <template
-        v-for="(part, i) in breadcrumbs"
-        :key="i"
+    <div class="flex items-stretch gap-3 bg-gray-200 dark:bg-neutral-800 text-xs sm:text-sm">
+      <div
+        ref="breadcrumbsContainer"
+        class="flex flex-1 items-center overflow-x-auto font-name"
       >
-        <button
-          class="flex items-center gap-1 p-2 text-gray-500 dark:text-neutral-400 select-none underline-offset-2"
-          :class="(entries.isFile && i === breadcrumbs.length - 1) ? 'cursor-default' : 'cursor-pointer hover:text-gray-600 hover:dark:text-neutral-300 hover:underline'"
-          :tabindex="(entries.isFile && i === breadcrumbs.length - 1) ? -1 : 0"
-          @click="onBreadcrumbNavigate(i)"
+        <template
+          v-if="!isSingleFile"
+          v-for="(part, i) in breadcrumbs"
+          :key="i"
         >
-          <bi-file-earmark-text
-            v-if="entries.isFile && i === breadcrumbs.length - 1"
-            class="flex-shrink-0 w-3 h-3"
-          />
-          <bi-folder2-open
-            v-else-if="i > 0"
-            class="flex-shrink-0 w-3 h-3"
-          />
-          <span v-text="part" />
+          <button
+            class="flex items-center gap-1 p-2 text-gray-500 dark:text-neutral-400 select-none underline-offset-2 whitespace-nowrap"
+            :class="(entries.isFile && i === breadcrumbs.length - 1) ? 'cursor-default' : 'cursor-pointer hover:text-gray-600 hover:dark:text-neutral-300 hover:underline'"
+            :tabindex="(entries.isFile && i === breadcrumbs.length - 1) ? -1 : 0"
+            @click="onBreadcrumbNavigate(i)"
+          >
+            <bi-file-earmark-text
+              v-if="entries.isFile && i === breadcrumbs.length - 1"
+              class="flex-shrink-0 w-3 h-3"
+            />
+            <bi-folder2-open
+              v-else-if="i > 0"
+              class="flex-shrink-0 w-3 h-3"
+            />
+            <span v-text="part" />
+          </button>
+          <bi-caret-right-fill class="flex-shrink-0 w-3 h-3 text-gray-400 dark:text-neutral-500 last:hidden" />
+        </template>
+      </div>
+      <div class="flex items-center">
+        <button
+          v-if="entries.isFile"
+          class="flex items-center gap-1 p-2 text-gray-500 dark:text-neutral-400 select-none cursor-pointer hover:text-gray-600 hover:dark:text-neutral-300 hover:underline underline-offset-2"
+          @click="emit('download', entries.files[0])"
+        >
+          <bi-cloud-download class="flex-shrink-0 w-4 h-4" />
+          <span>Download</span>
         </button>
-        <bi-caret-right-fill class="flex-shrink-0 w-3 h-3 text-gray-400 dark:text-neutral-500 last:hidden" />
-      </template>
+      </div>
     </div>
-    <div
+    <share-file-preview
       v-if="entries.isFile"
-      class=""
-    >
-    </div>
+      :file="entries.files[0]"
+      @download="emit('download', entries.files[0])"
+    />
     <div
       v-else
       class="divide-y divide-gray-200 dark:divide-neutral-800"
@@ -173,7 +210,7 @@ watch(props.files, () => {
         class="w-full flex items-center gap-3 p-2 sm:px-4 hover:bg-gray-300 dark:hover:bg-neutral-700 select-none cursor-pointer"
         @click="currentPath = file.path"
       >
-        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium overflow-x-hidden" style="white-space: nowrap">
+        <span class="flex-1 flex items-center gap-1.5 sm:gap-2 font-name text-sm sm:text-base font-medium overflow-x-hidden whitespace-nowrap">
           <bi-file-earmark-text class="flex-shrink-0 w-4 h-4" />
           <span v-text="file.name" />
         </span>
