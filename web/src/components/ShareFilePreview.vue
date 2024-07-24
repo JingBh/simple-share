@@ -7,18 +7,13 @@ import BiCloudDownload from 'bootstrap-icons/icons/cloud-download.svg?component'
 
 type PreviewType = 'image' | 'audio' | 'video' | 'document' | 'text' | null
 
-const props = defineProps<{
+defineProps<{
   file: ShareFile
 }>()
 
 const emit = defineEmits([
   'download'
 ])
-
-const filename = computed(() => {
-  const parts = props.file.path.split('/')
-  return parts[parts.length - 1]
-})
 
 const previewType = computed<PreviewType>(() => {
   // const parts = props.file.path.split('.')
