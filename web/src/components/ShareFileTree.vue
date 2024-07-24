@@ -88,7 +88,9 @@ const breadcrumbsContainer = ref<HTMLDivElement | null>(null)
 
 const breadcrumbs = computed<string[]>(() => {
   const parts = currentPath.value.split('/').filter(Boolean)
-  parts.unshift('Root')
+  if (!isSingleFile.value) {
+    parts.unshift('Root')
+  }
   return parts
 })
 
@@ -136,7 +138,6 @@ watch(breadcrumbs, () => {
         class="flex flex-1 items-center overflow-x-auto font-name"
       >
         <template
-          v-if="!isSingleFile"
           v-for="(part, i) in breadcrumbs"
           :key="i"
         >
