@@ -95,7 +95,7 @@ func AuthCallback(c echo.Context) error {
 		HttpOnly: true,
 	})
 
-	return c.Redirect(http.StatusFound, utils.Url("/"))
+	return c.Redirect(http.StatusFound, utils.Url("/#/"))
 }
 
 func AuthGetUserinfo(c echo.Context) error {

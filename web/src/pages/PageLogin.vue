@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  location.pathname = '/auth/login'
+  location.href = '/auth/login'
 })
 </script>
 
