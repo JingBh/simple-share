@@ -44,7 +44,7 @@ const onShow = () => {
   >
     <h5
       class="inline-flex items-center gap-2 text-base font-name font-medium"
-      :class="isOwner ? '' : 'text-gray-500 dark:text-gray-400'"
+      :class="isOwner ? '' : 'text-gray-500 dark:text-neutral-400'"
     >
       <share-icon :share-type="share.type" class="w-5 h-5" />
       <span v-text="displayName" />
