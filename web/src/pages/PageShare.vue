@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useLocalStorage } from '@vueuse/core'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import type { AxiosError } from 'axios'
 
@@ -9,6 +8,8 @@ import { useAxiosInstance } from '../lib/axios.ts'
 import { useStore } from '../lib/store.ts'
 import { isoToRelative } from '../utils/datetime.ts'
 import { formatSize } from '../utils/filesize.ts'
+import { useSharePasswords } from '../utils/share-passwords.ts'
+import { getContentUrl } from '../utils/share-url.ts'
 import FlowbiteSpinner from '../components/FlowbiteSpinner.vue'
 import ShareIcon from '../components/ShareIcon.vue'
 import LayoutDashboard from '../layouts/LayoutDashboard.vue'
@@ -33,10 +34,7 @@ const name = computed<string>(() => {
   return route.params.name
 })
 
-const passwords = useLocalStorage<Record<string, string>>('share_passwords', {}, {
-  writeDefaults: false,
-  initOnMounted: false
-})
+const passwords = useSharePasswords()
 
 const error = ref('')
 
@@ -71,17 +69,20 @@ const loadData = () => {
   locked.value = false
   textContent.value = ''
   _loadData(`/api/shares/${name.value}`, {
-    params: {
-      password: passwords.value[name.value]
+    headers: {
+      'X-Share-Password': passwords.value[name.value]
     }
   })
 }
 
 const textContent = ref('')
 
-const loadContent = (file?: string) => {
-  const url = file ? `/api/shares/${name.value}/files/${file}` : `/api/shares/${name.value}/content`
-  useAxiosInstance().get(url)
+const loadContent = (fileId?: string) => {
+  if (!share.value) {
+    return
+  }
+
+  useAxiosInstance().get(getContentUrl(share.value, fileId))
     .then(({ data }) => {
       if (share.value?.type === 'url') {
         textContent.value = data
@@ -129,18 +130,13 @@ const onDownloadFile = (file: ShareFile) => {
     return
   }
 
-  let url = share.value.type === 'directory'
-    ? `/api/shares/${share.value.name}/files/${file.id}`
-    : `/api/shares/${share.value.name}/content`
-
   const a = document.createElement('a')
-  a.href = url
+  a.href = getContentUrl(share.value, file.id)
   a.target = '_blank'
   {
-    const parts = file.path.split('.')
-    const filename = parts[parts.length - 1]
-    if (filename) {
-      a.download = filename
+    const parts = file.path.split('/')
+    if (parts.length) {
+      a.download = parts[parts.length - 1]
     }
   }
   a.click()
