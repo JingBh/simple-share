@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watch, watchEffect } from 'vue'
 
-import type { ShareFile } from '../types/share.ts'
+import { useAxiosInstance } from '../lib/axios.ts'
+import { getContentUrl, getContentTypeUrl, getPreviewUrl } from '../utils/share-url.ts'
+import FlowbiteSpinner from './FlowbiteSpinner.vue'
+import type { Share, ShareFile } from '../types/share.ts'
 
 import BiCloudDownload from 'bootstrap-icons/icons/cloud-download.svg?component'
 
-type PreviewType = 'image' | 'audio' | 'video' | 'document' | 'text' | null
+type FileType = 'image' | 'audio' | 'video' | 'document' | 'text' | 'unknown'
 
-defineProps<{
+const props = defineProps<{
+  share: Share
   file: ShareFile
 }>()
 
@@ -15,33 +19,69 @@ const emit = defineEmits([
   'download'
 ])
 
-const previewType = computed<PreviewType>(() => {
-  // const parts = props.file.path.split('.')
-  // const ext = parts[parts.length - 1].toLowerCase()
+const isLoadingType = ref(false)
 
-  // if (['gif', 'jpg', 'jpeg', 'png', 'svg', 'webp'].includes(ext)) {
-  //   return 'image'
-  // }
+const isLoadingContent = ref(false)
 
-  return null
+const previewType = ref<FileType>('unknown')
+
+const previewText = ref('')
+
+watchEffect(() => {
+  isLoadingType.value = true
+  useAxiosInstance().get<{
+    type: FileType
+  }>(getContentTypeUrl(props.share, props.file.id))
+    .then(({ data }) => {
+      previewType.value = data.type
+    })
+    .finally(() => {
+      isLoadingType.value = false
+    })
+})
+
+watch(previewType, () => {
+  if (previewType.value === 'text') {
+    previewText.value = ''
+    isLoadingContent.value = true
+    useAxiosInstance().get<string>(getContentUrl(props.share, props.file.id), {
+      responseType: 'text'
+    }).then(({ data }) => {
+      previewText.value = data
+    }).finally(() => {
+      isLoadingContent.value = false
+    })
+  }
+}, {
+  immediate: true
 })
 </script>
 
 <template>
-  <div v-if="previewType === 'image'">
-    <!-- TODO -->
+  <div
+    v-if="previewType === 'image'"
+    class="w-full aspect-[3/4] sm:aspect-[4/3] flex items-start justify-center"
+  >
+    <img
+      class="max-w-full max-h-full"
+      alt="image preview"
+      :src="getPreviewUrl(share, file.id)"
+      @error="previewType = 'unknown'"
+    />
   </div>
-  <div v-else-if="previewType === 'audio'">
-    <!-- TODO -->
-  </div>
-  <div v-else-if="previewType === 'video'">
-    <!-- TODO -->
-  </div>
-  <div v-else-if="previewType === 'document'">
-    <!-- TODO -->
-  </div>
-  <div v-else-if="previewType === 'text'">
-    <!-- TODO -->
+  <div
+    v-else-if="previewType === 'text' && !isLoadingContent"
+    class="w-full py-4 text-gray-600 dark:text-neutral-300 text-xs font-mono whitespace-pre-wrap overflow-x-auto"
+    v-text="previewText"
+  />
+  <div
+    v-else-if="isLoadingType || isLoadingContent"
+    class="py-4 sm:py-32 flex items-center justify-center gap-2"
+  >
+    <flowbite-spinner class="w-6 h-6" />
+    <p class="text-lg text-gray-500 dark:text-neutral-400">
+      Loading preview...
+    </p>
   </div>
   <div
     v-else

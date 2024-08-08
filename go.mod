@@ -7,6 +7,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.11.0
 	github.com/google/uuid v1.6.0
 	github.com/gookit/validate v1.5.2
+	github.com/h2non/filetype v1.1.3
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0

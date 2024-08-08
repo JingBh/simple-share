@@ -21,7 +21,7 @@ const props = defineProps<{
 
 const displayName = computed(() => {
   return props.share.displayName ??
-    (props.share.files ? props.share.files[0].path : null) ??
+    (props.share.type === 'file' && props.share.files?.length ? props.share.files[0].path : null) ??
     props.share.name
 })
 
@@ -46,7 +46,7 @@ const onShow = () => {
       class="inline-flex items-center gap-2 text-base font-name font-medium"
       :class="isOwner ? '' : 'text-gray-500 dark:text-neutral-400'"
     >
-      <share-icon :share-type="share.type" class="w-5 h-5" />
+      <share-icon :share-type="share.type" class="flex-shrink-0 w-5 h-5" />
       <span v-text="displayName" />
     </h5>
     <p class="flex items-center flex-wrap gap-y-1 text-xs text-gray-500 dark:text-neutral-400">

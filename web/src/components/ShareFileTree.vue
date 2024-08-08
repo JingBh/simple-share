@@ -3,7 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import { formatSize } from '../utils/filesize.ts'
 import ShareFilePreview from './ShareFilePreview.vue'
-import type { ShareFile } from '../types/share.ts'
+import type { Share, ShareFile } from '../types/share.ts'
 
 import BiCaretRightFill from 'bootstrap-icons/icons/caret-right-fill.svg?component'
 import BiCloudDownload from 'bootstrap-icons/icons/cloud-download.svg?component'
@@ -27,6 +27,7 @@ interface Entries {
 }
 
 const props = defineProps<{
+  share: Share
   files: ShareFile[]
 }>()
 
@@ -173,6 +174,7 @@ watch(breadcrumbs, () => {
     </div>
     <share-file-preview
       v-if="entries.isFile"
+      :share="share"
       :file="entries.files[0]"
       @download="emit('download', entries.files[0])"
     />

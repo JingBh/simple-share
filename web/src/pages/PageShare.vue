@@ -297,6 +297,7 @@ watch(name, () => {
     </div>
     <share-file-tree
       v-else-if="share.files"
+      :share="share"
       :files="share.files"
       @download="onDownloadFile"
     />

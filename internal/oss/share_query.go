@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/jingbh/simple-share/internal/models"
-	"io"
+	"github.com/jingbh/simple-share/internal/utils"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -24,11 +24,6 @@ type GetShareContentLinkOptions struct {
 	Name        string
 	FileId      string
 	ContentType string
-}
-
-type GetShareContentResult struct {
-	Reader  io.ReadCloser
-	Headers http.Header
 }
 
 func GetShare(ctx context.Context, name string) (*models.Share, error) {
@@ -178,7 +173,7 @@ func ListShares(ctx context.Context, continuationToken string) ([]*models.Share,
 	}
 }
 
-func GetShareContent(ctx context.Context, options GetShareContentOptions) (*GetShareContentResult, error) {
+func GetShareContent(ctx context.Context, options GetShareContentOptions) (*oss.Response, error) {
 	client := Client()
 
 	key := "shares/" + options.Name
@@ -191,6 +186,10 @@ func GetShareContent(ctx context.Context, options GetShareContentOptions) (*GetS
 	}
 	if options.Headers != nil {
 		for k, vs := range options.Headers {
+			if k == http.CanonicalHeaderKey("X-OSS-Process") && len(vs) > 0 {
+				ossOptions = append(ossOptions, oss.Process(vs[0]))
+				continue
+			}
 			for _, v := range vs {
 				ossOptions = append(ossOptions, oss.SetHeader(k, v))
 			}
@@ -207,12 +206,8 @@ func GetShareContent(ctx context.Context, options GetShareContentOptions) (*GetS
 		}
 		return nil, err
 	}
-	resp := res.Response
 
-	return &GetShareContentResult{
-		Reader:  resp.Body,
-		Headers: resp.Headers,
-	}, nil
+	return res.Response, nil
 }
 
 func GetShareContentLink(ctx context.Context, options GetShareContentLinkOptions) (string, error) {
@@ -231,4 +226,34 @@ func GetShareContentLink(ctx context.Context, options GetShareContentLinkOptions
 	}
 
 	return client.SignURL(key, oss.HTTPGet, 3600, ossOptions...)
+}
+
+func GetShareContentType(ctx context.Context, name string, fileId string) (models.FileType, error) {
+	client := Client()
+
+	key := "shares/" + name
+	if fileId != "" {
+		key += ".d/" + fileId + ".bin"
+	}
+
+	// https://github.com/h2non/filetype#file-header
+	// Only first 262 bytes representing the max file header is required
+	ossOptions := []oss.Option{
+		oss.WithContext(ctx),
+		oss.Range(0, 262),
+	}
+	res, err := client.DoGetObject(&oss.GetObjectRequest{
+		ObjectKey: key,
+	}, ossOptions)
+	if err != nil {
+		return models.FileTypeUnknown, err
+	}
+
+	head := make([]byte, 262)
+	_, err = res.Response.Body.Read(head)
+	if err != nil && err.Error() != "EOF" {
+		return models.FileTypeUnknown, err
+	}
+
+	return utils.DeduceFileType(head)
 }

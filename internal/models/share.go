@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Share struct {
 	Type        string        `json:"type"` // `file`, `directory`, `text`, `url`
